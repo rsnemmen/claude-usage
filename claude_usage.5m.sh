@@ -17,16 +17,22 @@ SHOW_RESET="${VAR_SHOW_RESET:-true}"
 
 CLAUDE_ICON="iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAHhlWElmTU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAIdpAAQAAAABAAAATgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAABKgAwAEAAAAAQAAABIAAAAAqSaGYgAAAAlwSFlzAAALEwAACxMBAJqcGAAAAdJJREFUOBGV0z1IVWEYB3Cv2ZAVlQUpWDnYJqZBREPU1tISBo1OBkEfWBGNQhTR1iwu2hIENdYUVBRBBjXVUEZRYBLah2CD3X5/O/cQ14vRA7/zPO/Hec857zmnqakuqtVqM11U6ob+r2mBQ3zjYu1MdR/3aKv1/TObvI9ffKqdKA+zwOYsIPewv+FiBrbSWky8oU6cKtrX1C+Kuludi3xkaX65oI4WJnlOLx185TUZmyi0yk9JXGf5Puo8zjzfGeACiSPcJu0xErno+vJO6guDu3hAYpwZnvCY3G1ijp76cxu2TTxP7qwWi0WRlzBCP0OMcou2isMWq43wky/MME0vZ9lELaqKjK0m8/ICHjLW4jDPSzrYQDt9JBb/pPKYua+4zyTvmapUKgvy8nCXnWSPpsjj1GJKcZm7TJN4R3vuqAwd6zSGyfdzh2fkEbrIFkQ3A+Tx+lnLbPkdWGSvjnFWcYJOhhjlMD84wCO2c9QjfZaXorlWyLlCFtrNLJcYZAdznCPfzgcmyLe1U24cBrfxhmOZIednvVrUg+rEHvJzH0x/wzB4hisZlNeQ/+p00c7ncpOTDU/+u9Ok8gWoN/KW7FEZ2n9vSdm/YuGkdrJ/K8ZvZcjUYTq3RuAAAAAASUVORK5CYII="
 
-# === Retrieve credentials from Keychain ===
+# === Helper: show error with logo and warning ===
+
+show_error() {
+  local message="$1"
+  echo "⚠️ | templateImage=${CLAUDE_ICON}"
+  echo "---"
+  echo "${message}"
+  echo "---"
+  echo "Refresh | refresh=true"
+  exit 0
+}
 
 RAW_CREDS="$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null)"
 
 if [ -z "$RAW_CREDS" ]; then
-  echo "⚠️ No Credentials"
-  echo "---"
-  echo "No Claude Code credentials found in Keychain."
-  echo "Sign in to Claude Code first."
-  exit 1
+  show_error "No Claude Code credentials found in Keychain. Sign in to Claude Code first."
 fi
 
 TOKEN="$(printf '%s' "$RAW_CREDS" | python3 -c "
@@ -44,10 +50,7 @@ except Exception:
 " 2>/dev/null)"
 
 if [ -z "$TOKEN" ]; then
-  echo "⚠️ No Credentials"
-  echo "---"
-  echo "Could not parse Claude Code credentials."
-  exit 1
+  show_error "Could not parse Claude Code credentials."
 fi
 
 # === Fetch usage from API ===
@@ -62,12 +65,9 @@ http_code="$(printf '%s\n' "$response" | tail -n 1)"
 body="$(printf '%s\n' "$response" | sed '$d')"
 
 if [ "$http_code" = "401" ]; then
-  echo "⚠️ Token Expired"
-  exit 1
+  show_error "Token expired. Please sign in to Claude Code again."
 elif [ "$http_code" -lt 200 ] 2>/dev/null || [ "$http_code" -ge 300 ] 2>/dev/null; then
-  echo "⚠️ API Error ($http_code)"
-  echo "Response: $body" >&2
-  exit 1
+  show_error "API Error ($http_code). Response: $body"
 fi
 
 # === Parse JSON response ===
@@ -97,9 +97,7 @@ except Exception as e:
 " 2>/dev/null)"
 
 if [ -z "$parsed" ]; then
-  echo "⚠️ Parse Error"
-  echo "Could not parse API response: $body" >&2
-  exit 1
+  show_error "Could not parse API response: $body"
 fi
 
 UTIL_5H="$(      printf '%s\n' "$parsed" | sed -n '1p')"
@@ -108,8 +106,6 @@ UTIL_7D_OPUS="$( printf '%s\n' "$parsed" | sed -n '3p')"
 RESET_5H="$(     printf '%s\n' "$parsed" | sed -n '4p')"
 RESET_7D="$(     printf '%s\n' "$parsed" | sed -n '5p')"
 RESET_7D_OPUS="$(printf '%s\n' "$parsed" | sed -n '6p')"
-
-# === Helper: round float to integer percentage ===
 
 format_pct() {
   python3 -c "print(round(float('${1:-0}')))" 2>/dev/null || echo "0"
