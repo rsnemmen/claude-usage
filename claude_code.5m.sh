@@ -4,6 +4,7 @@
 #<xbar.author>Rodrigo Nemmen da Silva</xbar.author>
 #<xbar.desc>Display Claude Code API rate limit utilization</xbar.desc>
 #<xbar.dependencies>curl,python3</xbar.dependencies>
+#<xbar.image>https://raw.githubusercontent.com/rsnemmen/claude-usage/refs/heads/main/SCR-20260219-jges.png</xbar.image>
 
 # User variables
 # ================
