@@ -4,19 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-A single-file SwiftBar/xbar plugin (`claude_usage.5m.sh`) that displays Claude Code API rate limit utilization in the macOS menu bar. No build system, no external dependencies beyond `curl` and `python3` (both ship with macOS).
+A single-file SwiftBar/xbar plugin (`claude_code.5m.sh`) that displays Claude Code API rate limit utilization in the macOS menu bar. No build system, no external dependencies beyond `curl` and `python3` (both ship with macOS).
 
 ## Running and Testing
 
 ```bash
 # Make executable and run directly
-chmod +x claude_usage.5m.sh
-./claude_usage.5m.sh
+chmod +x claude_code.5m.sh
+./claude_code.5m.sh
 
 # Requires Claude Code signed in (token stored in Keychain under "Claude Code-credentials")
 
 # Optional linting
-shellcheck claude_usage.5m.sh
+shellcheck claude_code.5m.sh
 ```
 
 There are no automated tests. Verify changes manually with SwiftBar installed.
@@ -36,7 +36,7 @@ The script executes in four sequential phases:
 - All JSON parsing and date arithmetic goes in inline Python (stdlib only — no `jq`, `bc`, `awk`).
 - User-configurable variables use the `VAR_` prefix and `${VAR_NAME:-default}` fallback pattern.
 - Section variables follow context prefixes: `UTIL_*` for raw utilization floats, `PCT_*` for rounded integers, `RESET_*` for ISO timestamps, `BAR_*` for ASCII bars.
-- Script filename encodes the polling interval: `claude_usage.5m.sh` → every 5 minutes.
+- Script filename encodes the polling interval: `claude_code.5m.sh` → every 5 minutes.
 
 ## SwiftBar Output Format
 

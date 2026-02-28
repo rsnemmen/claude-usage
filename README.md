@@ -23,11 +23,11 @@ This script was *heavily* inspired on [ClaudeMeter](https://github.com/puq-ai/cl
 
 2. Copy the script to your SwiftBar plugins folder:
 
-        cp claude_usage.5m.sh ~/path/to/swiftbar/plugins/
+        cp claude_code.5m.sh ~/path/to/swiftbar/plugins/
 
 3. Make it executable:
 
-        chmod +x ~/path/to/swiftbar/plugins/claude_usage.5m.sh
+        chmod +x ~/path/to/swiftbar/plugins/claude_code.5m.sh
 
 4. Click **Refresh All** in SwiftBar or wait for the next poll cycle.
 
@@ -112,7 +112,7 @@ All JSON parsing and date arithmetic is handled by `python3` (stdlib only). No `
 
 ### Polling interval
 
-The `5m` in the filename tells SwiftBar to run the script every 5 minutes. To change the interval, rename the file — for example, `claude_usage.1m.sh` for once per minute or `claude_usage.15m.sh` for every 15 minutes.
+The `5m` in the filename tells SwiftBar to run the script every 5 minutes. To change the interval, rename the file — for example, `claude_code.1m.sh` for once per minute or `claude_code.15m.sh` for every 15 minutes.
 
 ### Related projects
 
